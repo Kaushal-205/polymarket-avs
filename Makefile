@@ -58,4 +58,21 @@ clean:
 	rm -rf $(OUT)
 	rm -rf demo-snapshots snapshots
 
-.PHONY: build build-publisher build-demo build-all deps build/container test test-go test-forge demo demo-publish demo-watch clean
+# DevNet targets
+devnet-start:
+	@echo "🚀 Starting Polymarket AVS DevNet..."
+	@./scripts/start-devnet.sh
+
+devnet-stop:
+	@echo "🛑 Stopping Polymarket AVS DevNet..."
+	@./scripts/stop-devnet.sh
+
+devnet-status:
+	@echo "📊 DevNet Status:"
+	@docker ps --filter "network=hourglass-network" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" || echo "No DevNet containers running"
+
+devnet-logs:
+	@echo "📋 AVS Performer Logs:"
+	@docker logs -f polymarket-avs-performer || echo "AVS performer not running"
+
+.PHONY: build build-publisher build-demo build-all deps build/container test test-go test-forge demo demo-publish demo-watch clean devnet-start devnet-stop devnet-status devnet-logs

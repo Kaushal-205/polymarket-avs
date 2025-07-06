@@ -1,0 +1,59 @@
+{
+  "task_id": "task-1-1751777304",
+  "snapshot_hash": "0xd4b202c5649d39b2287d1d2ac9c86965a035b018c22257363e224389497bbfff",
+  "snapshot": {
+    "sequence_number": 1,
+    "timestamp": "2025-07-06T04:48:24.373589839Z",
+    "market_id": "TRUMP-2024-WIN",
+    "orders": [
+      {
+        "id": "order-buy-001",
+        "side": "buy",
+        "price": 530000000000000000,
+        "quantity": 1000000000000000000,
+        "timestamp": "2025-07-06T04:43:24.37358545Z",
+        "user_id": "user-alice"
+      },
+      {
+        "id": "order-buy-002",
+        "side": "buy",
+        "price": 515000000000000000,
+        "quantity": 2000000000000000000,
+        "timestamp": "2025-07-06T04:44:24.37358545Z",
+        "user_id": "user-bob"
+      },
+      {
+        "id": "order-sell-001",
+        "side": "sell",
+        "price": 530000000000000000,
+        "quantity": 1500000000000000000,
+        "timestamp": "2025-07-06T04:43:54.37358545Z",
+        "user_id": "user-charlie"
+      },
+      {
+        "id": "order-sell-002",
+        "side": "sell",
+        "price": 525000000000000000,
+        "quantity": 800000000000000000,
+        "timestamp": "2025-07-06T04:44:54.37358545Z",
+        "user_id": "user-diana"
+      }
+    ],
+    "merkle_root": "0xd4b202c5649d39b2287d1d2ac9c86965a035b018c22257363e224389497bbfff",
+    "prev_hash": "0x0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "trades": [
+    {
+      "id": "trade-001",
+      "buy_order_id": "order-buy-001",
+      "sell_order_id": "order-sell-002",
+      "price": 525000000000000000,
+      "quantity": 800000000000000000,
+      "timestamp": "2025-07-06T04:45:24.37358545Z",
+      "tx_hash": "0xdef123456789abcdef123456789abcdef12345678",
+      "block_number": 12345678
+    }
+  ],
+  "batch_id": "batch-1",
+  "submitted_at": "2025-07-06T04:48:24.874950166Z"
+}
