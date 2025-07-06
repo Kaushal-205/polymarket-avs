@@ -2,11 +2,11 @@ package main
 
 import (
 	"encoding/json"
-	"math/big"
-	"testing"
 	"github.com/Layr-Labs/hourglass-avs-template/pkg/orderbookchecker"
 	performerV1 "github.com/Layr-Labs/protocol-apis/gen/protos/eigenlayer/hourglass/v1/performer"
 	"go.uber.org/zap"
+	"math/big"
+	"testing"
 )
 
 func Test_TaskRequestPayload(t *testing.T) {
@@ -33,7 +33,7 @@ func Test_TaskRequestPayload(t *testing.T) {
 					UserID:   "user1",
 				},
 				{
-					ID:       "sell-1", 
+					ID:       "sell-1",
 					Side:     "sell",
 					Price:    big.NewInt(95),
 					Quantity: big.NewInt(30),
@@ -45,7 +45,7 @@ func Test_TaskRequestPayload(t *testing.T) {
 			{
 				ID:          "trade-1",
 				BuyOrderID:  "buy-1",
-				SellOrderID: "sell-1", 
+				SellOrderID: "sell-1",
 				Price:       big.NewInt(95),
 				Quantity:    big.NewInt(30),
 			},

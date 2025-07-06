@@ -21,10 +21,10 @@ import (
 
 // TaskInput represents the input data for orderbook verification tasks
 type TaskInput struct {
-	SnapshotHash string                            `json:"snapshot_hash"`
+	SnapshotHash string                             `json:"snapshot_hash"`
 	Snapshot     orderbookchecker.OrderbookSnapshot `json:"snapshot"`
 	Trades       []orderbookchecker.Trade           `json:"trades"`
-	TradeBatchID string                            `json:"trade_batch_id"`
+	TradeBatchID string                             `json:"trade_batch_id"`
 }
 
 type TaskWorker struct {
@@ -40,39 +40,72 @@ func NewTaskWorker(logger *zap.Logger) *TaskWorker {
 }
 
 func (tw *TaskWorker) ValidateTask(t *performerV1.TaskRequest) error {
-	tw.logger.Sugar().Infow("Validating task",
-		zap.Any("task", t),
+	startTime := time.Now()
+
+	tw.logger.Info("Starting task validation",
+		zap.String("task_id", string(t.TaskId)),
+		zap.Int("payload_size", len(t.Payload)),
+		zap.Time("started_at", startTime),
 	)
 
 	// Parse task input
 	var taskInput TaskInput
 	if err := json.Unmarshal(t.Payload, &taskInput); err != nil {
+		tw.logger.Error("Failed to parse task payload",
+			zap.String("task_id", string(t.TaskId)),
+			zap.Error(err),
+			zap.Duration("duration", time.Since(startTime)),
+		)
 		return fmt.Errorf("failed to parse task data: %v", err)
 	}
 
 	// Validate required fields
 	if taskInput.SnapshotHash == "" {
+		tw.logger.Error("Validation failed: missing snapshot_hash",
+			zap.String("task_id", string(t.TaskId)),
+			zap.Duration("duration", time.Since(startTime)),
+		)
 		return fmt.Errorf("snapshot_hash is required")
 	}
 
 	if taskInput.TradeBatchID == "" {
+		tw.logger.Error("Validation failed: missing trade_batch_id",
+			zap.String("task_id", string(t.TaskId)),
+			zap.Duration("duration", time.Since(startTime)),
+		)
 		return fmt.Errorf("trade_batch_id is required")
 	}
 
 	if taskInput.Snapshot.SequenceNumber == 0 {
+		tw.logger.Error("Validation failed: missing snapshot sequence_number",
+			zap.String("task_id", string(t.TaskId)),
+			zap.Duration("duration", time.Since(startTime)),
+		)
 		return fmt.Errorf("snapshot sequence_number is required")
 	}
 
 	if taskInput.Snapshot.MarketID == "" {
+		tw.logger.Error("Validation failed: missing snapshot market_id",
+			zap.String("task_id", string(t.TaskId)),
+			zap.Duration("duration", time.Since(startTime)),
+		)
 		return fmt.Errorf("snapshot market_id is required")
 	}
 
 	if len(taskInput.Trades) == 0 {
+		tw.logger.Error("Validation failed: empty trades array",
+			zap.String("task_id", string(t.TaskId)),
+			zap.Duration("duration", time.Since(startTime)),
+		)
 		return fmt.Errorf("trades array cannot be empty")
 	}
 
 	// Validate snapshot integrity (basic checks)
 	if len(taskInput.Snapshot.Orders) == 0 {
+		tw.logger.Error("Validation failed: empty orders in snapshot",
+			zap.String("task_id", string(t.TaskId)),
+			zap.Duration("duration", time.Since(startTime)),
+		)
 		return fmt.Errorf("snapshot must contain at least one order")
 	}
 
@@ -84,43 +117,105 @@ func (tw *TaskWorker) ValidateTask(t *performerV1.TaskRequest) error {
 
 	for _, trade := range taskInput.Trades {
 		if !orderIDs[trade.BuyOrderID] {
+			tw.logger.Error("Validation failed: trade references unknown buy order",
+				zap.String("task_id", string(t.TaskId)),
+				zap.String("trade_id", trade.ID),
+				zap.String("buy_order_id", trade.BuyOrderID),
+				zap.Duration("duration", time.Since(startTime)),
+			)
 			return fmt.Errorf("trade %s references unknown buy order %s", trade.ID, trade.BuyOrderID)
 		}
 		if !orderIDs[trade.SellOrderID] {
+			tw.logger.Error("Validation failed: trade references unknown sell order",
+				zap.String("task_id", string(t.TaskId)),
+				zap.String("trade_id", trade.ID),
+				zap.String("sell_order_id", trade.SellOrderID),
+				zap.Duration("duration", time.Since(startTime)),
+			)
 			return fmt.Errorf("trade %s references unknown sell order %s", trade.ID, trade.SellOrderID)
 		}
 	}
 
-	tw.logger.Sugar().Infow("Task validation passed",
-		"snapshot_hash", taskInput.SnapshotHash,
-		"trade_batch_id", taskInput.TradeBatchID,
-		"total_orders", len(taskInput.Snapshot.Orders),
-		"total_trades", len(taskInput.Trades),
+	tw.logger.Info("Task validation completed successfully",
+		zap.String("task_id", string(t.TaskId)),
+		zap.String("snapshot_hash", taskInput.SnapshotHash),
+		zap.String("trade_batch_id", taskInput.TradeBatchID),
+		zap.String("market_id", taskInput.Snapshot.MarketID),
+		zap.Uint64("sequence_number", taskInput.Snapshot.SequenceNumber),
+		zap.Int("total_orders", len(taskInput.Snapshot.Orders)),
+		zap.Int("total_trades", len(taskInput.Trades)),
+		zap.Duration("validation_duration", time.Since(startTime)),
 	)
 
 	return nil
 }
 
 func (tw *TaskWorker) HandleTask(t *performerV1.TaskRequest) (*performerV1.TaskResponse, error) {
-	tw.logger.Sugar().Infow("Handling task",
-		zap.Any("task", t),
+	startTime := time.Now()
+
+	tw.logger.Info("Starting task execution",
+		zap.String("task_id", string(t.TaskId)),
+		zap.Int("payload_size", len(t.Payload)),
+		zap.Time("started_at", startTime),
 	)
 
 	// Parse task input
 	var taskInput TaskInput
 	if err := json.Unmarshal(t.Payload, &taskInput); err != nil {
+		tw.logger.Error("Failed to parse task payload during execution",
+			zap.String("task_id", string(t.TaskId)),
+			zap.Error(err),
+			zap.Duration("duration", time.Since(startTime)),
+		)
 		return nil, fmt.Errorf("failed to parse task data: %v", err)
 	}
 
+	tw.logger.Info("Task input parsed successfully",
+		zap.String("task_id", string(t.TaskId)),
+		zap.String("snapshot_hash", taskInput.SnapshotHash),
+		zap.String("trade_batch_id", taskInput.TradeBatchID),
+		zap.String("market_id", taskInput.Snapshot.MarketID),
+		zap.Uint64("sequence_number", taskInput.Snapshot.SequenceNumber),
+		zap.Int("orders_count", len(taskInput.Snapshot.Orders)),
+		zap.Int("trades_count", len(taskInput.Trades)),
+	)
+
 	// Perform orderbook verification
+	verificationStart := time.Now()
 	result, err := tw.verifier.VerifySnapshot(taskInput.Trades, taskInput.Snapshot)
+	verificationDuration := time.Since(verificationStart)
+
 	if err != nil {
-		tw.logger.Sugar().Errorw("Verification failed",
-			"error", err,
-			"snapshot_hash", taskInput.SnapshotHash,
-			"trade_batch_id", taskInput.TradeBatchID,
+		tw.logger.Error("Orderbook verification failed",
+			zap.String("task_id", string(t.TaskId)),
+			zap.String("snapshot_hash", taskInput.SnapshotHash),
+			zap.String("trade_batch_id", taskInput.TradeBatchID),
+			zap.Error(err),
+			zap.Duration("verification_duration", verificationDuration),
+			zap.Duration("total_duration", time.Since(startTime)),
 		)
 		return nil, fmt.Errorf("verification failed: %v", err)
+	}
+
+	tw.logger.Info("Orderbook verification completed",
+		zap.String("task_id", string(t.TaskId)),
+		zap.Bool("valid", result.Valid),
+		zap.Int("verified_trades", result.VerifiedTrades),
+		zap.Int("total_trades", result.TotalTrades),
+		zap.Int("failed_trades", len(result.FailedTrades)),
+		zap.Duration("verification_duration", verificationDuration),
+	)
+
+	// Log detailed results for invalid settlements
+	if !result.Valid {
+		tw.logger.Warn("Settlement verification FAILED - potential fraud detected",
+			zap.String("task_id", string(t.TaskId)),
+			zap.String("snapshot_hash", taskInput.SnapshotHash),
+			zap.String("trade_batch_id", taskInput.TradeBatchID),
+			zap.String("market_id", taskInput.Snapshot.MarketID),
+			zap.String("error_message", result.ErrorMessage),
+			zap.Any("failed_trades", result.FailedTrades),
+		)
 	}
 
 	// Prepare result
@@ -130,18 +225,35 @@ func (tw *TaskWorker) HandleTask(t *performerV1.TaskRequest) (*performerV1.TaskR
 		"trade_batch_id":      taskInput.TradeBatchID,
 		"verified_at":         time.Now().UTC(),
 		"verifier_version":    "1.0.0",
+		"performance_metrics": map[string]interface{}{
+			"verification_duration_ms": verificationDuration.Milliseconds(),
+			"total_duration_ms":        time.Since(startTime).Milliseconds(),
+			"orders_processed":         len(taskInput.Snapshot.Orders),
+			"trades_processed":         len(taskInput.Trades),
+		},
 	}
 
 	resultBytes, err := json.Marshal(resultData)
 	if err != nil {
+		tw.logger.Error("Failed to marshal task result",
+			zap.String("task_id", string(t.TaskId)),
+			zap.Error(err),
+			zap.Duration("total_duration", time.Since(startTime)),
+		)
 		return nil, fmt.Errorf("failed to marshal result: %v", err)
 	}
 
-	tw.logger.Sugar().Infow("Task completed successfully",
-		"valid", result.Valid,
-		"verified_trades", result.VerifiedTrades,
-		"total_trades", result.TotalTrades,
-		"failed_trades", len(result.FailedTrades),
+	tw.logger.Info("Task execution completed successfully",
+		zap.String("task_id", string(t.TaskId)),
+		zap.String("snapshot_hash", taskInput.SnapshotHash),
+		zap.String("trade_batch_id", taskInput.TradeBatchID),
+		zap.Bool("settlement_valid", result.Valid),
+		zap.Int("verified_trades", result.VerifiedTrades),
+		zap.Int("total_trades", result.TotalTrades),
+		zap.Int("failed_trades", len(result.FailedTrades)),
+		zap.Int("result_size_bytes", len(resultBytes)),
+		zap.Duration("verification_duration", verificationDuration),
+		zap.Duration("total_duration", time.Since(startTime)),
 	)
 
 	return &performerV1.TaskResponse{

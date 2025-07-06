@@ -144,7 +144,7 @@ func TestOrderbookVerifier_VerifySnapshot_ExcessiveQuantity(t *testing.T) {
 				ID:        "buy-1",
 				Side:      "buy",
 				Price:     big.NewInt(50200), // Higher than sell price to allow matching
-				Quantity:  big.NewInt(500), // Small quantity
+				Quantity:  big.NewInt(500),   // Small quantity
 				Timestamp: time.Now().Add(-2 * time.Minute),
 				UserID:    "user1",
 			},
@@ -374,4 +374,4 @@ func TestOrderbookVerifier_TimePriority(t *testing.T) {
 	if !result.Valid {
 		t.Errorf("Expected valid result for time priority respected, got invalid: %s", result.ErrorMessage)
 	}
-} 
+}

@@ -1,0 +1,41 @@
+{
+  "sequence_number": 1,
+  "timestamp": "2025-07-06T04:31:59.790839367Z",
+  "market_id": "TRUMP-2024-WIN",
+  "orders": [
+    {
+      "id": "order-buy-001",
+      "side": "buy",
+      "price": 530000000000000000,
+      "quantity": 1000000000000000000,
+      "timestamp": "2025-07-06T04:26:59.790836118Z",
+      "user_id": "user-alice"
+    },
+    {
+      "id": "order-buy-002",
+      "side": "buy",
+      "price": 515000000000000000,
+      "quantity": 2000000000000000000,
+      "timestamp": "2025-07-06T04:27:59.790836118Z",
+      "user_id": "user-bob"
+    },
+    {
+      "id": "order-sell-001",
+      "side": "sell",
+      "price": 530000000000000000,
+      "quantity": 1500000000000000000,
+      "timestamp": "2025-07-06T04:27:29.790836118Z",
+      "user_id": "user-charlie"
+    },
+    {
+      "id": "order-sell-002",
+      "side": "sell",
+      "price": 525000000000000000,
+      "quantity": 800000000000000000,
+      "timestamp": "2025-07-06T04:28:29.790836118Z",
+      "user_id": "user-diana"
+    }
+  ],
+  "merkle_root": "0xe1bc3e11dfc2fcbbc29c1f036a01ce22a9c32bb818238d2b6969c008b04a763e",
+  "prev_hash": "0x0000000000000000000000000000000000000000000000000000000000000000"
+}

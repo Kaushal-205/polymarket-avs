@@ -17,24 +17,24 @@ type Order struct {
 
 // Trade represents an executed trade from on-chain data
 type Trade struct {
-	ID           string   `json:"id"`
-	BuyOrderID   string   `json:"buy_order_id"`
-	SellOrderID  string   `json:"sell_order_id"`
-	Price        *big.Int `json:"price"`
-	Quantity     *big.Int `json:"quantity"`
-	Timestamp    time.Time `json:"timestamp"`
-	TxHash       string   `json:"tx_hash"`
-	BlockNumber  uint64   `json:"block_number"`
+	ID          string    `json:"id"`
+	BuyOrderID  string    `json:"buy_order_id"`
+	SellOrderID string    `json:"sell_order_id"`
+	Price       *big.Int  `json:"price"`
+	Quantity    *big.Int  `json:"quantity"`
+	Timestamp   time.Time `json:"timestamp"`
+	TxHash      string    `json:"tx_hash"`
+	BlockNumber uint64    `json:"block_number"`
 }
 
 // OrderbookSnapshot represents a snapshot of the orderbook at a specific point in time
 type OrderbookSnapshot struct {
-	SequenceNumber uint64   `json:"sequence_number"`
+	SequenceNumber uint64    `json:"sequence_number"`
 	Timestamp      time.Time `json:"timestamp"`
-	MarketID       string   `json:"market_id"`
-	Orders         []Order  `json:"orders"`
-	MerkleRoot     string   `json:"merkle_root"`
-	PrevHash       string   `json:"prev_hash"`
+	MarketID       string    `json:"market_id"`
+	Orders         []Order   `json:"orders"`
+	MerkleRoot     string    `json:"merkle_root"`
+	PrevHash       string    `json:"prev_hash"`
 }
 
 // VerificationResult represents the result of orderbook verification
@@ -50,4 +50,4 @@ type VerificationResult struct {
 type OrderbookState struct {
 	BuyOrders  []Order // Sorted by price (highest first), then by timestamp
 	SellOrders []Order // Sorted by price (lowest first), then by timestamp
-} 
+}

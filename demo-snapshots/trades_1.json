@@ -1,0 +1,12 @@
+[
+  {
+    "id": "trade-001",
+    "buy_order_id": "order-buy-001",
+    "sell_order_id": "order-sell-002",
+    "price": 525000000000000000,
+    "quantity": 800000000000000000,
+    "timestamp": "2025-07-06T04:28:59.790836118Z",
+    "tx_hash": "0xdef123456789abcdef123456789abcdef12345678",
+    "block_number": 12345678
+  }
+]

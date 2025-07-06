@@ -2,8 +2,8 @@ package orderbookchecker
 
 import (
 	"fmt"
-	"sort"
 	"go.uber.org/zap"
+	"sort"
 )
 
 // OrderbookVerifier handles verification of orderbook snapshots against executed trades
@@ -151,13 +151,13 @@ func (v *OrderbookVerifier) findOrderByID(orderID string, orders []Order) (*Orde
 func (v *OrderbookVerifier) verifyPriceMatching(trade Trade, buyOrder, sellOrder *Order) error {
 	// Buy order price must be >= trade price
 	if buyOrder.Price.Cmp(trade.Price) < 0 {
-		return fmt.Errorf("buy order price %s is less than trade price %s", 
+		return fmt.Errorf("buy order price %s is less than trade price %s",
 			buyOrder.Price.String(), trade.Price.String())
 	}
 
 	// Sell order price must be <= trade price
 	if sellOrder.Price.Cmp(trade.Price) > 0 {
-		return fmt.Errorf("sell order price %s is greater than trade price %s", 
+		return fmt.Errorf("sell order price %s is greater than trade price %s",
 			sellOrder.Price.String(), trade.Price.String())
 	}
 
@@ -170,13 +170,13 @@ func (v *OrderbookVerifier) verifyPriceMatching(trade Trade, buyOrder, sellOrder
 func (v *OrderbookVerifier) verifyQuantityConstraints(trade Trade, buyOrder, sellOrder *Order) error {
 	// Trade quantity must not exceed buy order quantity
 	if trade.Quantity.Cmp(buyOrder.Quantity) > 0 {
-		return fmt.Errorf("trade quantity %s exceeds buy order quantity %s", 
+		return fmt.Errorf("trade quantity %s exceeds buy order quantity %s",
 			trade.Quantity.String(), buyOrder.Quantity.String())
 	}
 
 	// Trade quantity must not exceed sell order quantity
 	if trade.Quantity.Cmp(sellOrder.Quantity) > 0 {
-		return fmt.Errorf("trade quantity %s exceeds sell order quantity %s", 
+		return fmt.Errorf("trade quantity %s exceeds sell order quantity %s",
 			trade.Quantity.String(), sellOrder.Quantity.String())
 	}
 
@@ -193,7 +193,7 @@ func (v *OrderbookVerifier) verifyTimePriority(trade Trade, buyOrder, sellOrder 
 		if order.Price.Cmp(buyOrder.Price) >= 0 && order.Timestamp.Before(buyOrder.Timestamp) {
 			// There's an earlier order at same or better price that should have been matched first
 			return fmt.Errorf("buy order %s has priority over %s (price: %s vs %s, time: %v vs %v)",
-				order.ID, buyOrder.ID, order.Price.String(), buyOrder.Price.String(), 
+				order.ID, buyOrder.ID, order.Price.String(), buyOrder.Price.String(),
 				order.Timestamp, buyOrder.Timestamp)
 		}
 	}
@@ -206,10 +206,10 @@ func (v *OrderbookVerifier) verifyTimePriority(trade Trade, buyOrder, sellOrder 
 		if order.Price.Cmp(sellOrder.Price) <= 0 && order.Timestamp.Before(sellOrder.Timestamp) {
 			// There's an earlier order at same or better price that should have been matched first
 			return fmt.Errorf("sell order %s has priority over %s (price: %s vs %s, time: %v vs %v)",
-				order.ID, sellOrder.ID, order.Price.String(), sellOrder.Price.String(), 
+				order.ID, sellOrder.ID, order.Price.String(), sellOrder.Price.String(),
 				order.Timestamp, sellOrder.Timestamp)
 		}
 	}
 
 	return nil
-} 
+}
